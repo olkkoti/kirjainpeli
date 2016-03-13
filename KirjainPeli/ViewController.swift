@@ -18,10 +18,14 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     
     let label: UILabel = UILabel.init()
     var characterBuffer: String = ""
+    let words = Trie()
     
     override func viewDidLoad() {
         super.viewDidLoad()
     
+        ["ÄITI", "AUTO", "OSKARI", "NAHKA", "TAKKI", "NAHKATAKKI"].forEach {
+            words.add($0)
+        }
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = UIColor.whiteColor()
         label.font = label.font.fontWithSize(FONT_SIZE)
@@ -70,10 +74,8 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         label.text = characterBuffer
         say(letter)
         
-        ["ÄITI", "AUTO", "OSKARI"].forEach {
-            if characterBuffer.hasSuffix($0) {
-                say($0)
-            }
+        words.find(String(characterBuffer.characters.reverse())).forEach {
+            say($0)
         }
     }
     
