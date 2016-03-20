@@ -19,13 +19,17 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     let label: UILabel = UILabel.init()
     var characterBuffer: String = ""
     let words = Trie()
+    var wordArray = Array<String>()
+    var indexes = Dictionary<Character, Int>()
+    
+    var db: COpaquePointer = nil
+    var statement: COpaquePointer = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
     
-        ["ÄITI", "AUTO", "OSKARI", "NAHKA", "TAKKI", "NAHKATAKKI"].forEach {
-            words.add($0)
-        }
+        initWordDatabase()
+        
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = UIColor.whiteColor()
         label.font = label.font.fontWithSize(FONT_SIZE)
@@ -73,10 +77,33 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         characterBuffer += letter
         label.text = characterBuffer
         say(letter)
-        
-        words.find(String(characterBuffer.characters.reverse())).forEach {
+        getWords().forEach({
             say($0)
+        })
+    }
+    
+    func getWords() -> [String] {
+        var index = characterBuffer.startIndex
+        var words: [String] = []
+        let SQLITE_TRANSIENT = unsafeBitCast(-1, sqlite3_destructor_type.self)
+        while (index != characterBuffer.endIndex) {
+            let key = characterBuffer.substringFromIndex(index).lowercaseString
+            if sqlite3_bind_text(statement, 1, key, -1, SQLITE_TRANSIENT) != SQLITE_OK {
+                let errmsg = String.fromCString(sqlite3_errmsg(db))
+                print("failure binding foo: \(errmsg)")
+            }
+            
+            if sqlite3_step(statement) == SQLITE_ROW {
+                let word = sqlite3_column_text(statement, 0)
+                if word != nil {
+                    words.append(String.fromCString(UnsafePointer<Int8>(word))!)
+                }
+            }
+            sqlite3_reset(statement)
+            sqlite3_clear_bindings(statement)
+            index = index.successor()
         }
+        return words
     }
     
     func say(text: String) {
@@ -88,6 +115,17 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         speechSynthesizer.speakUtterance(speechUtterance)
     }
     
+    func initWordDatabase() {
+        let path = NSBundle.mainBundle().pathForResource("finnish_words.db", ofType: nil)
+        if sqlite3_open(path!, &db) != SQLITE_OK {
+            print("error opening database")
+        }
+        if sqlite3_prepare_v2(db, "select word from words where word = (?)", -1, &statement, nil) != SQLITE_OK {
+            let errmsg = String.fromCString(sqlite3_errmsg(db))
+            print("error preparing query: \(errmsg)")
+        }
+    }
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

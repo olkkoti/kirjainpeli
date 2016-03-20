@@ -12,7 +12,9 @@
 		86CC0A0A1C84489C002CB467 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86CC0A081C84489C002CB467 /* Main.storyboard */; };
 		86CC0A0C1C84489C002CB467 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86CC0A0B1C84489C002CB467 /* Assets.xcassets */; };
 		86CC0A0F1C84489C002CB467 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86CC0A0D1C84489C002CB467 /* LaunchScreen.storyboard */; };
-		86CC0A171C958553002CB467 /* Trie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CC0A161C958553002CB467 /* Trie.swift */; };
+		86CC0A191C958C88002CB467 /* finnish_words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 86CC0A181C958C88002CB467 /* finnish_words.txt */; };
+		86CC0A201C96B0B3002CB467 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 86CC0A1F1C96B0B3002CB467 /* libsqlite3.0.tbd */; };
+		86FFB4721C96B990000B6018 /* finnish_words.db in Resources */ = {isa = PBXBuildFile; fileRef = 86FFB4711C96B990000B6018 /* finnish_words.db */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,7 +25,10 @@
 		86CC0A0B1C84489C002CB467 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		86CC0A0E1C84489C002CB467 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		86CC0A101C84489C002CB467 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		86CC0A161C958553002CB467 /* Trie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
+		86CC0A181C958C88002CB467 /* finnish_words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = finnish_words.txt; sourceTree = "<group>"; };
+		86CC0A1F1C96B0B3002CB467 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
+		86FFB44B1C96B4E5000B6018 /* KirjainPeli-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KirjainPeli-Bridging-Header.h"; sourceTree = "<group>"; };
+		86FFB4711C96B990000B6018 /* finnish_words.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = finnish_words.db; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86CC0A201C96B0B3002CB467 /* libsqlite3.0.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +46,7 @@
 		86CC09F81C84489C002CB467 = {
 			isa = PBXGroup;
 			children = (
+				86CC0A1F1C96B0B3002CB467 /* libsqlite3.0.tbd */,
 				86CC0A031C84489C002CB467 /* KirjainPeli */,
 				86CC0A021C84489C002CB467 /* Products */,
 			);
@@ -56,13 +63,15 @@
 		86CC0A031C84489C002CB467 /* KirjainPeli */ = {
 			isa = PBXGroup;
 			children = (
+				86FFB4711C96B990000B6018 /* finnish_words.db */,
 				86CC0A041C84489C002CB467 /* AppDelegate.swift */,
 				86CC0A061C84489C002CB467 /* ViewController.swift */,
 				86CC0A081C84489C002CB467 /* Main.storyboard */,
 				86CC0A0B1C84489C002CB467 /* Assets.xcassets */,
 				86CC0A0D1C84489C002CB467 /* LaunchScreen.storyboard */,
 				86CC0A101C84489C002CB467 /* Info.plist */,
-				86CC0A161C958553002CB467 /* Trie.swift */,
+				86CC0A181C958C88002CB467 /* finnish_words.txt */,
+				86FFB44B1C96B4E5000B6018 /* KirjainPeli-Bridging-Header.h */,
 			);
 			path = KirjainPeli;
 			sourceTree = "<group>";
@@ -128,7 +137,9 @@
 			files = (
 				86CC0A0F1C84489C002CB467 /* LaunchScreen.storyboard in Resources */,
 				86CC0A0C1C84489C002CB467 /* Assets.xcassets in Resources */,
+				86CC0A191C958C88002CB467 /* finnish_words.txt in Resources */,
 				86CC0A0A1C84489C002CB467 /* Main.storyboard in Resources */,
+				86FFB4721C96B990000B6018 /* finnish_words.db in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,7 +150,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				86CC0A171C958553002CB467 /* Trie.swift in Sources */,
 				86CC0A071C84489C002CB467 /* ViewController.swift in Sources */,
 				86CC0A051C84489C002CB467 /* AppDelegate.swift in Sources */,
 			);
@@ -254,13 +264,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = KirjainPeli/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = fi.timoolkkonen.KirjainPeli;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "KirjainPeli/KirjainPeli-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -268,6 +283,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = KirjainPeli/Info.plist;
@@ -275,6 +291,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = fi.timoolkkonen.KirjainPeli;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "KirjainPeli/KirjainPeli-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -297,6 +315,7 @@
 				86CC0A151C84489C002CB467 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
