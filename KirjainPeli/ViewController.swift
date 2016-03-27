@@ -18,9 +18,6 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     
     let label: UILabel = UILabel.init()
     var characterBuffer: String = ""
-    let words = Trie()
-    var wordArray = Array<String>()
-    var indexes = Dictionary<Character, Int>()
     
     var db: COpaquePointer = nil
     var statement: COpaquePointer = nil
