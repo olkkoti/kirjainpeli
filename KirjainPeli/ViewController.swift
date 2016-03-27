@@ -17,14 +17,16 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     let FONT_SIZE: CGFloat = 40
     
     let label: UILabel = UILabel.init()
-    var characterBuffer: String = ""
+    var characterBuffer = NSMutableAttributedString.init()
     
     var db: COpaquePointer = nil
     var statement: COpaquePointer = nil
+    var utteranceIndexes = [AVSpeechUtterance: Int]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
     
+        speechSynthesizer.delegate = self
         initWordDatabase()
         
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -71,20 +73,21 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     
     func letterPressed(letterButton: UIButton) {
         let letter = letterButton.currentTitle!
-        characterBuffer += letter
-        label.text = characterBuffer
-        say(letter)
+        characterBuffer.appendAttributedString(NSAttributedString.init(string: letter))
+        let characterCount = characterBuffer.string.characters.count
+        label.attributedText = characterBuffer
+        say(letter, startIndex: characterCount-1)
         getWords().forEach({
-            say($0)
+            say($0, startIndex: characterCount - $0.characters.count)
         })
     }
     
     func getWords() -> [String] {
-        var index = characterBuffer.startIndex
+        var index = characterBuffer.string.startIndex
         var words: [String] = []
         let SQLITE_TRANSIENT = unsafeBitCast(-1, sqlite3_destructor_type.self)
-        while (index != characterBuffer.endIndex) {
-            let key = characterBuffer.substringFromIndex(index).lowercaseString
+        while (index != characterBuffer.string.endIndex) {
+            let key = characterBuffer.string.substringFromIndex(index).lowercaseString
             if sqlite3_bind_text(statement, 1, key, -1, SQLITE_TRANSIENT) != SQLITE_OK {
                 let errmsg = String.fromCString(sqlite3_errmsg(db))
                 print("failure binding foo: \(errmsg)")
@@ -103,12 +106,15 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         return words
     }
     
-    func say(text: String) {
+    func say(text: String, startIndex: Int) {
         let speechUtterance = AVSpeechUtterance(string: text.lowercaseString)
         speechUtterance.rate = AVSpeechUtteranceDefaultSpeechRate
         speechUtterance.pitchMultiplier = 1.0
         speechUtterance.volume = 1.0
         speechUtterance.voice = AVSpeechSynthesisVoice(language: "fi-FI")
+        speechUtterance.preUtteranceDelay = 0.0
+        speechUtterance.postUtteranceDelay = 0.0
+        utteranceIndexes[speechUtterance] = startIndex
         speechSynthesizer.speakUtterance(speechUtterance)
     }
     
@@ -123,6 +129,19 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         }
     }
 
+    func speechSynthesizer(synthesizer: AVSpeechSynthesizer, didStartSpeechUtterance utterance: AVSpeechUtterance) {
+        let startIndex = utteranceIndexes[utterance]
+        characterBuffer.addAttribute(NSForegroundColorAttributeName, value: UIColor.redColor(), range: NSRange(location: startIndex!, length: utterance.speechString.characters.count))
+        label.attributedText = characterBuffer
+    }
+    
+    func speechSynthesizer(synthesizer: AVSpeechSynthesizer, didFinishSpeechUtterance utterance: AVSpeechUtterance) {
+        let startIndex = utteranceIndexes[utterance]
+        characterBuffer.removeAttribute(NSForegroundColorAttributeName, range: NSRange(location: startIndex!, length: utterance.speechString.characters.count))
+        label.attributedText = characterBuffer
+        utteranceIndexes.removeValueForKey(utterance)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
