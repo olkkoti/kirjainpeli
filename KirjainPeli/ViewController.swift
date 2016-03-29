@@ -36,18 +36,26 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = UIColor.whiteColor()
         label.font = label.font.fontWithSize(FONT_SIZE)
+        label.numberOfLines = 0
         
         scoreLabel.textColor = UIColor.yellowColor()
         scoreLabel.font = scoreLabel.font.fontWithSize(FONT_SIZE)
         scoreLabel.text = String.init(score)
+        scoreLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         incrementLabel.textColor = UIColor.redColor()
         incrementLabel.font = incrementLabel.font.fontWithSize(FONT_SIZE)
-        incrementLabel.text = ""
+        incrementLabel.text = " "
+        incrementLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         let scoreColumn = UIStackView(arrangedSubviews: [scoreLabel, incrementLabel])
         scoreColumn.axis = .Vertical
-        
-        let topRow = UIStackView(arrangedSubviews: [label, scoreColumn])
-        topRow.axis = .Horizontal
+        scoreColumn.alignment = UIStackViewAlignment.Trailing
+        scoreColumn.translatesAutoresizingMaskIntoConstraints = false
+
+        let topRow = UIView()
+        topRow.addSubview(label)
+        topRow.addSubview(scoreColumn)
         
         let column = UIStackView(arrangedSubviews: [topRow] + ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY", "ZÅÄÖ"].map(toRow))
         column.axis = .Vertical
@@ -57,11 +65,18 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         column.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(column)
         
-        let viewsDictionary = ["stackView":column]
-        let stackView_H = NSLayoutConstraint.constraintsWithVisualFormat("H:|-20-[stackView]-20-|", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: viewsDictionary)
-        let stackView_V = NSLayoutConstraint.constraintsWithVisualFormat("V:|-30-[stackView]-30-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: viewsDictionary)
-        view.addConstraints(stackView_H)
-        view.addConstraints(stackView_V)
+        label.leftAnchor.constraintEqualToAnchor(topRow.leftAnchor).active = true
+        label.topAnchor.constraintEqualToAnchor(topRow.topAnchor).active = true
+        label.bottomAnchor.constraintEqualToAnchor(topRow.bottomAnchor).active = true
+        scoreColumn.leftAnchor.constraintEqualToAnchor(label.rightAnchor).active = true
+        scoreColumn.rightAnchor.constraintEqualToAnchor(topRow.rightAnchor).active = true
+        scoreColumn.topAnchor.constraintEqualToAnchor(topRow.topAnchor).active = true
+        scoreColumn.bottomAnchor.constraintEqualToAnchor(topRow.bottomAnchor).active = true
+        scoreColumn.widthAnchor.constraintGreaterThanOrEqualToConstant(100).active = true
+        column.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: 20).active = true
+        column.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -20).active = true
+        column.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: 30).active = true
+        column.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -30).active = true
     }
         
     func toRow(characters: String) -> UIStackView {
@@ -170,7 +185,7 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
         if let utteranceScore = utteranceScores[utterance] {
             score += utteranceScore.0 * utteranceScore.1
             scoreLabel.text = "\(score)"
-            incrementLabel.text = ""
+            incrementLabel.text = " "
         }
         utteranceScores.removeValueForKey(utterance)
         utteranceIndexes.removeValueForKey(utterance)
