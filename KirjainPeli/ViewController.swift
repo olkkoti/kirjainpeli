@@ -106,9 +106,11 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     
     func letterPressed(letterButton: UIButton) {
         let letter = letterButton.currentTitle!
-        let characterCount = characterBuffer.string.characters.count
-        if (characterCount == MAX_CHARS) {
+        characterBuffer.appendAttributedString(NSAttributedString.init(string: letter))
+        var characterCount = characterBuffer.string.characters.count
+        if (characterCount > MAX_CHARS) {
             characterBuffer = NSMutableAttributedString.init(string: characterBuffer.string.substringFromIndex(characterBuffer.string.startIndex.successor()))
+            characterCount = characterBuffer.string.characters.count;
             for (utterance, index) in pendingUtterances {
                 pendingUtterances[utterance] = index - 1
             }
@@ -118,7 +120,6 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
                 highlight(utterance, startIndex: newIndex)
             }
         }
-        characterBuffer.appendAttributedString(NSAttributedString.init(string: letter))
         label.attributedText = characterBuffer
         
         let letterUtterance = toUtterance(letter)
