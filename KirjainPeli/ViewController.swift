@@ -13,12 +13,13 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     
     let speechSynthesizer = AVSpeechSynthesizer()
     
+    let font = UIFont(name: "ChalkboardSE-Light", size: 40)
     let SPACING: CGFloat = 20
-    let FONT_SIZE: CGFloat = 40
     let MAX_CHARS = 30
     
     let label: UILabel = UILabel.init()
     let scoreLabel: UILabel = UILabel.init()
+    let scoreCount: UILabel = UILabel.init()
     let incrementLabel: UILabel = UILabel.init()
     var score = 0
     var characterBuffer = NSMutableAttributedString.init()
@@ -31,53 +32,85 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+        
         speechSynthesizer.delegate = self
         initWordDatabase()
         
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = UIColor.whiteColor()
-        label.font = label.font.fontWithSize(FONT_SIZE)
+        label.font = font
         label.numberOfLines = 0
         
         scoreLabel.textColor = UIColor.yellowColor()
-        scoreLabel.font = scoreLabel.font.fontWithSize(FONT_SIZE)
-        scoreLabel.text = String.init(score)
+        scoreLabel.font = font
+        scoreLabel.text = "Pisteet:"
         scoreLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        scoreCount.textColor = UIColor.yellowColor()
+        scoreCount.font = font
+        scoreCount.text = String.init(score)
+        scoreCount.translatesAutoresizingMaskIntoConstraints = false
+        
         incrementLabel.textColor = UIColor.redColor()
-        incrementLabel.font = incrementLabel.font.fontWithSize(FONT_SIZE)
+        incrementLabel.font = font
         incrementLabel.text = " "
         incrementLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        let scoreColumn = UIStackView(arrangedSubviews: [scoreLabel, incrementLabel])
-        scoreColumn.axis = .Vertical
-        scoreColumn.alignment = UIStackViewAlignment.Trailing
-        scoreColumn.translatesAutoresizingMaskIntoConstraints = false
 
         let topRow = UIView()
+        topRow.translatesAutoresizingMaskIntoConstraints = false
         topRow.addSubview(label)
-        topRow.addSubview(scoreColumn)
+        topRow.addSubview(scoreLabel)
+        topRow.addSubview(scoreCount)
+        topRow.addSubview(incrementLabel)
         
-        let column = UIStackView(arrangedSubviews: [topRow] + ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY", "ZÅÄÖ"].map(toRow))
+        let rows = ["ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY", "ZÅÄÖ"].map(toRow)
+        let lastRow: UIStackView = rows[rows.indices.last!]
+        lastRow.addArrangedSubview(resetButton())
+        let column = UIStackView(arrangedSubviews: rows)
+
         column.axis = .Vertical
         column.distribution = .FillEqually
         column.alignment = .Fill
         column.spacing = SPACING
         column.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(topRow)
         view.addSubview(column)
         
         label.leftAnchor.constraintEqualToAnchor(topRow.leftAnchor).active = true
         label.topAnchor.constraintEqualToAnchor(topRow.topAnchor).active = true
         label.bottomAnchor.constraintEqualToAnchor(topRow.bottomAnchor).active = true
-        scoreColumn.leftAnchor.constraintEqualToAnchor(label.rightAnchor).active = true
-        scoreColumn.rightAnchor.constraintEqualToAnchor(topRow.rightAnchor).active = true
-        scoreColumn.topAnchor.constraintEqualToAnchor(topRow.topAnchor).active = true
-        scoreColumn.bottomAnchor.constraintEqualToAnchor(topRow.bottomAnchor).active = true
-        scoreColumn.widthAnchor.constraintGreaterThanOrEqualToConstant(100).active = true
+        label.setContentHuggingPriority(UILayoutPriorityDefaultHigh, forAxis: .Vertical)
+        label.setContentCompressionResistancePriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
+        label.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Vertical)
+        
+        scoreLabel.leftAnchor.constraintEqualToAnchor(label.rightAnchor, constant: 50).active = true
+        scoreLabel.topAnchor.constraintEqualToAnchor(topRow.topAnchor).active = true
+        scoreLabel.bottomAnchor.constraintEqualToAnchor(incrementLabel.topAnchor).active = true
+        scoreLabel.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Horizontal)
+        scoreLabel.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Vertical)
+        
+        scoreCount.leftAnchor.constraintEqualToAnchor(scoreLabel.rightAnchor).active = true
+        scoreCount.topAnchor.constraintEqualToAnchor(topRow.topAnchor).active = true
+        scoreCount.rightAnchor.constraintEqualToAnchor(topRow.rightAnchor).active = true
+        scoreCount.bottomAnchor.constraintEqualToAnchor(incrementLabel.topAnchor).active = true
+        scoreCount.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Horizontal)
+        scoreCount.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Vertical)
+        
+        incrementLabel.leftAnchor.constraintEqualToAnchor(label.rightAnchor, constant: 50).active = true
+        incrementLabel.topAnchor.constraintEqualToAnchor(scoreLabel.bottomAnchor).active = true
+        incrementLabel.rightAnchor.constraintEqualToAnchor(topRow.rightAnchor).active = true
+        incrementLabel.bottomAnchor.constraintEqualToAnchor(topRow.bottomAnchor).active = true
+        incrementLabel.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Horizontal)
+        incrementLabel.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Vertical)
+        
+        topRow.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: 20).active = true
+        topRow.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -20).active = true
+        topRow.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: 30).active = true
+        topRow.setContentCompressionResistancePriority(UILayoutPriorityDefaultHigh, forAxis: .Vertical)
+        
         column.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: 20).active = true
         column.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -20).active = true
-        column.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: 30).active = true
+        column.topAnchor.constraintEqualToAnchor(topRow.bottomAnchor, constant: 30).active = true
         column.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -30).active = true
     }
         
@@ -92,16 +125,39 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     }
     
     func toLetterButton(letter: Character) -> UIButton {
-        let button = UIButton(type: .System)
+        let button = keypadButton()
         button.setTitle(String(letter), forState: .Normal)
-        button.addTarget(self, action: "letterPressed:", forControlEvents: .TouchDown)
-        button.titleLabel!.font = button.titleLabel!.font.fontWithSize(FONT_SIZE)
+        button.addTarget(self, action: #selector(ViewController.letterPressed(_:)), forControlEvents: .TouchDown)
+        return button
+    }
+    
+    func resetButton() -> UIButton {
+        let button = keypadButton()
+        button.setTitle("Reset", forState: .Normal)
+        button.addTarget(self, action: #selector(ViewController.reset), forControlEvents: .TouchDown)
+        return button
+    }
+    
+    func keypadButton() -> UIButton {
+        let button = UIButton(type: .System)
+        button.titleLabel!.font = font
         button.titleLabel!.textColor = UIColor.blueColor()
         button.backgroundColor = UIColor.lightGrayColor()
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.blackColor().CGColor
         button.layer.cornerRadius = 15
         return button
+        
+    }
+    func reset() {
+        characterBuffer = NSMutableAttributedString.init()
+        label.attributedText = characterBuffer
+        pendingUtterances.removeAll()
+        startedUtterances.removeAll()
+        utteranceScores.removeAll()
+        score = 0
+        scoreCount.text = String.init(score)
+        speechSynthesizer.stopSpeakingAtBoundary(.Immediate)
     }
     
     func letterPressed(letterButton: UIButton) {
@@ -185,14 +241,15 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     func speechSynthesizer(synthesizer: AVSpeechSynthesizer, didStartSpeechUtterance utterance: AVSpeechUtterance) {
         dispatch_async(dispatch_get_main_queue()) { [weak self] in
             if let store = self {
-                let startIndex = store.pendingUtterances[utterance]
-                store.highlight(utterance, startIndex: startIndex)
-                store.label.attributedText = store.characterBuffer
-                if let scores = store.utteranceScores[utterance] {
-                    store.incrementLabel.text = "+ \(scores.1)x\(scores.0)"
+                if let startIndex = store.pendingUtterances[utterance] {
+                    store.highlight(utterance, startIndex: startIndex)
+                    store.label.attributedText = store.characterBuffer
+                    if let scores = store.utteranceScores[utterance] {
+                        store.incrementLabel.text = "+ \(scores.1)x\(scores.0)"
+                    }
+                    store.pendingUtterances.removeValueForKey(utterance)
+                    store.startedUtterances[utterance] = startIndex
                 }
-                store.pendingUtterances.removeValueForKey(utterance)
-                store.startedUtterances[utterance] = startIndex
             }
         }
     }
@@ -200,18 +257,19 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     func speechSynthesizer(synthesizer: AVSpeechSynthesizer, didFinishSpeechUtterance utterance: AVSpeechUtterance) {
         dispatch_async(dispatch_get_main_queue()) { [weak self] in
             if let store = self {
-                let startIndex = store.startedUtterances[utterance]
-                if let startLength = store.adjustedStartAndLength(startIndex, utterance: utterance) {
-                    store.characterBuffer.removeAttribute(NSForegroundColorAttributeName, range: NSRange(location: startLength.start, length: startLength.length))
+                if let startIndex = store.startedUtterances[utterance] {
+                    if let startLength = store.adjustedStartAndLength(startIndex, utterance: utterance) {
+                        store.characterBuffer.removeAttribute(NSForegroundColorAttributeName, range: NSRange(location: startLength.start, length: startLength.length))
+                    }
+                    store.label.attributedText = store.characterBuffer
+                    if let utteranceScore = store.utteranceScores[utterance] {
+                        store.score += utteranceScore.0 * utteranceScore.1
+                        store.scoreCount.text = "\(store.score)"
+                        store.incrementLabel.text = " "
+                    }
+                    store.utteranceScores.removeValueForKey(utterance)
+                    store.startedUtterances.removeValueForKey(utterance)
                 }
-                store.label.attributedText = store.characterBuffer
-                if let utteranceScore = store.utteranceScores[utterance] {
-                    store.score += utteranceScore.0 * utteranceScore.1
-                    store.scoreLabel.text = "\(store.score)"
-                    store.incrementLabel.text = " "
-                }
-                store.utteranceScores.removeValueForKey(utterance)
-                store.startedUtterances.removeValueForKey(utterance)
             }
         }
     }
@@ -219,7 +277,7 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     func highlight(utterance: AVSpeechUtterance, startIndex: Int?) {
         if let startLength = adjustedStartAndLength(startIndex, utterance: utterance) {
             characterBuffer.addAttribute(NSForegroundColorAttributeName, value: UIColor.redColor(), range: NSRange(location: startLength.start, length: startLength.length))
-            }
+        }
     }
     
     func adjustedStartAndLength(startIndex: Int?, utterance: AVSpeechUtterance) -> (start: Int, length: Int)? {
