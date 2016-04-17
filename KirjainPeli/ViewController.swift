@@ -30,8 +30,14 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
     var startedUtterances = [AVSpeechUtterance: Int]()
     var utteranceScores = [AVSpeechUtterance: (Int, Int)]()
     
+    let gradientLayer = CAGradientLayer()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        gradientLayer.frame = self.view.bounds
+        gradientLayer.colors = [UIColor.blueColor().CGColor, UIColor.greenColor().CGColor]
+        self.view.layer.addSublayer(gradientLayer)
         
         speechSynthesizer.delegate = self
         initWordDatabase()
@@ -290,6 +296,11 @@ class ViewController: UIViewController, AVSpeechSynthesizerDelegate {
             }
         }
         return nil
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        gradientLayer.frame = self.view.bounds
     }
     
     override func didReceiveMemoryWarning() {
